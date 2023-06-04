@@ -3,7 +3,7 @@ COPY get-pip.py /app/get-pip.py
 COPY main.py /app/main.py
 
 WORKDIR /app
-RUN python get-pip.py
+RUN echo $PORT
 RUN pip install websockets redis asyncio
 
 CMD ["python", "main.py"]
