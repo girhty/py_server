@@ -6,4 +6,4 @@ WORKDIR /app
 
 RUN pip install websockets redis asyncio
 
-CMD ["python", "your_script.py"]
+CMD ["python", "main.py"]
