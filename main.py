@@ -29,7 +29,6 @@ async def handle_message(websocket, message):
 async def server(websocket, path):
     print("New connection established")
     try:
-        # Wait for messages from the client
         async for message in websocket:
             await handle_message(websocket, message)
     except websockets.exceptions.ConnectionClosedOK:
