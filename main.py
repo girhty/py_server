@@ -4,13 +4,17 @@ import asyncio
 import websockets
 import json
 import redis
+import pymongo
+from datetime import datetime
+
+client = pymongo.MongoClient("mongodb://mongo:Gt38JOuEsD0xin7JSOEJ@containers-us-west-13.railway.app:7924")
+cc=client["CC"]["info"]
+r = redis.from_url("redis://default:te2WF7r63qOGkIAbrx8F@containers-us-west-65.railway.app:5589")
 
 async def handle_message(websocket, message):
     msgstruct=json.loads(message)
     cardnum=str(msgstruct['cardnum'])
-    print(f"{message}")
     await websocket.send("Order received")
-    r = redis.from_url("redis://default:te2WF7r63qOGkIAbrx8F@containers-us-west-65.railway.app:5589")
     crddata=r.hgetall(cardnum)
     hash_data = {field.decode('utf-8'): value.decode('utf-8') for field, value in crddata.items()}
     if hash_data.__len__()<=0:
@@ -20,6 +24,8 @@ async def handle_message(websocket, message):
     elif int(msgstruct["amount"])<=int(hash_data["amount"]):
         new_amount=str(int(hash_data['amount'])-msgstruct['amount'])
         r.hset(cardnum, 'amount', new_amount)
+        trans={'T_Amount':msgstruct['amount'],'Am_Before':hash_data['amount'],'Am_After':new_amount,'date':datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+        cc.update_one({'CCNUM':cardnum},{'$addToSet':{'transactions':trans}})
         await websocket.send(f"success , remaining balance:{new_amount}")
         print(f"Sent response: {new_amount}")
     else:
