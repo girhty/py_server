@@ -24,7 +24,7 @@ async def handle_message(websocket, message):
     elif int(msgstruct["amount"])<=int(hash_data["amount"]):
         new_amount=str(int(hash_data['amount'])-msgstruct['amount'])
         r.hset(cardnum, 'amount', new_amount)
-        trans={"T_Amount":msgstruct['amount'],"Am_Before":hash_data['amount'],"Am_After":new_amount,"date":datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+        trans={"T_Amount":msgstruct['amount'],"Am_Before":int(hash_data['amount']),"Am_After":int(new_amount),"date":datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
         cc.update_one({'CCNUM':msgstruct['cardnum']},{'$addToSet':{'transactions':trans}})
         await websocket.send(f"success , remaining balance:{new_amount}")
         print(f"Sent response: {new_amount}")
